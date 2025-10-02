@@ -5,7 +5,7 @@
 
 // Global array of dumped rand() values
 unsigned int dumped_rand_values[] = {
-    925546193, 112971749, 894331345, 550606490, 612670572, 1984253156,
+    0x372ab6d1, 0x6bbcfe5, 894331345, 550606490, 612670572, 1984253156,
     817333697, 1167418030, 200844547, 1559357924, 23570935, 1386030510,
     1718236449, 15324003, 1422046595, 194577446, 2099689618, 1639611688,
     1940125404, 594757870, 2080102868, 422936716, 2081226504, 661342256,
@@ -29,12 +29,19 @@ size_t dumped_index = 0;
 // Replacement for rand() that uses dumped values
 unsigned int next_rand() {
     unsigned int val = dumped_rand_values[dumped_index];
+    printf("Using dumped rand value: %u\n", val);
     dumped_index++;
     if (dumped_index >= sizeof(dumped_rand_values)/sizeof(dumped_rand_values[0])) {
         dumped_index = 0; // wrap around if needed
     }
     return val;
 }
+
+unsigned char rol(unsigned char value, unsigned int n) {
+    const unsigned int bits = 8;
+    n %= bits;
+    return (value << n) | (value >> (bits - n));
+} 
 
 // Rotate right for 8-bit value
 unsigned char rotr(unsigned char value, unsigned int n) {
@@ -44,9 +51,9 @@ unsigned char rotr(unsigned char value, unsigned int n) {
 }
 
 // sub_1500 using next_rand()
-uint64_t sub_1500(const unsigned char *a1, uint64_t a2, const unsigned char *a3) {
-    unsigned char *v5 = calloc(a2, sizeof(unsigned char));
-    unsigned char *v7 = calloc(a2, sizeof(unsigned char));
+uint64_t sub_1500(unsigned char *a1, uint64_t a2, const unsigned char *a3) {
+    unsigned char *v5 = calloc(0x100, sizeof(unsigned char));
+    unsigned char *v7 = calloc(0x100, sizeof(unsigned char));
     uint64_t i, j;
 
     if (!a1 || !a2) {
@@ -69,16 +76,64 @@ uint64_t sub_1500(const unsigned char *a1, uint64_t a2, const unsigned char *a3)
         v5[--j] = *ptr;
         *ptr = tmp;
     }
+    for (size_t k = 0; k < a2; k++) {
+	printf("%d ", v5[k]);
+    }
+    printf("\n");
 
     // Transform
-    uint64_t v14 = 0;
-    for (uint64_t v13 = 0; v13 < i; ++v13) {
-        unsigned char x = v5[v14];
-        unsigned char v15 = (37 * x) >> 8;
-        unsigned char shift = x - 7 * (((x - v15) >> 1) + v15) / 4 + 1;
-        unsigned char val = v7[x] ^ rotr(a3[v14] + (unsigned char)v14, shift);
-        printf("%c", val);
-        v14 = v13 + 1;
+    for (uint64_t v13 = 0; v13 < i; v13++) {
+        uint8_t x = v5[v13];
+        uint16_t v15 = (37 * x) >> 8;
+        unsigned int shift = x - 7 * ((uint8_t)(((uint8_t)(x - v15) >> 1) + v15) >> 2) + 1;
+        unsigned char val = v7[x] ^ rotr(a3[v13], shift);
+        a1[x] = val;
+        // printf("v5[%d]=%d->%c\n", v13, x, val);
+    }
+    a1[i] = 0;
+    
+    free(v5);
+    free(v7);
+    return i;
+}
+
+// Forward transform
+uint64_t sub_1500_forward(const unsigned char *input, uint64_t len, unsigned char *outbuf) {
+    uint8_t *v5 = calloc(len, sizeof(uint8_t));
+    unsigned char *v7 = calloc(len, sizeof(unsigned char));
+    uint64_t i, j;
+
+    if (!input || !len) {
+        free(v5);
+        free(v7);
+        return 0;
+    }
+
+    // Fill arrays
+    for (i = 0; i < len; ++i) {
+        v5[i] = (unsigned char)i;
+        v7[i] = (unsigned char)next_rand();
+    }
+
+    // Shuffle v5
+    for (j = i; j != 1;) {
+        int r = next_rand();
+        unsigned char tmp = v5[j - 1];
+        unsigned char *ptr = &v5[r % j];
+        v5[--j] = *ptr;
+        *ptr = tmp;
+    }
+    for (size_t k = 0; k < len; k++) {
+	printf("%d ", v5[k]);
+    }
+    printf("\n");
+
+    // Transform
+    for (uint64_t v13 = 0; v13 < i; v13++) {
+        uint8_t x = v5[v13];
+        uint16_t v15 = (37 * x) >> 8;
+        unsigned int shift = x - 7 * ((uint8_t)(((uint8_t)(x - v15) >> 1) + v15) >> 2) + 1;
+        outbuf[v13] = rol(v7[x] ^ input[x], shift);
     }
 
     free(v5);
@@ -87,16 +142,31 @@ uint64_t sub_1500(const unsigned char *a1, uint64_t a2, const unsigned char *a3)
 }
 
 int main() {
-    unsigned char input[] = "ExampleInputString";
-    unsigned char key[32] = {
-        0x0B, 0x41, 0xDD, 0xD4, 0x7E, 0x7B, 0x33, 0xCD,
-        0xDA, 0x6B, 0x51, 0x8E, 0x22, 0xFE, 0x57, 0x10,
-        0x0E, 0xC7, 0x7C, 0xB2, 0x35, 0x61, 0x28, 0x4F,
-        0x87, 0x06, 0x9A, 0x90, 0xF9, 0x45, 0x19, 0xAA
+    unsigned char input[] = "flag{Th1s_1s_4_t3st_fl4g}";
+    int n = strlen((char*)input);
+    unsigned char output[256] = {0};
+    unsigned char key[34] = {
+    	0x03, 0x71, 0xE5, 0x2F, 0xE2, 0x18, 0xB5, 0xA6,
+    	0xDD, 0x3C, 0xB3, 0xE7, 0x47, 0xDD, 0x1D, 0xB4,
+    	0xA4, 0x9A, 0x51, 0x94, 0x0F, 0xA9, 0x69, 0x70,
+    	0xF8, 0x84, 0x12, 0x56, 0x23, 0xCB, 0x77, 0xEC, 0xD8, 0xA2
     };
 
-    sub_1500(input, strlen((char*)input), key);
+    sub_1500_forward(input, n, output);
+    printf("Transformed: ");
+    for (size_t i = 0; i < n; i++) {
+	printf("%02X ", output[i]);
+    }
+    printf("\n");
+    dumped_index = 0; // Reset index to reuse dumped values
+    input[0] = 0; // Clear input
+    sub_1500(input, n, output);
+    printf("TEST Recovered: %s\n", input);
 
+    dumped_index = 0; // Reset index to reuse dumped values
+    printf("Recovering Key...\n");
+    sub_1500(input, strlen((char*)key), key);
+    printf("Key Recovered: %s\n", input);
     return 0;
 }
 
