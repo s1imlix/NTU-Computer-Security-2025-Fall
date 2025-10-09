@@ -2,4 +2,6 @@
 How-to-Hack-Websites/
 **/payload
 **/output.txt
-hw1/starvm
+**/starvm
+**/serial
+**/.gdb_history
