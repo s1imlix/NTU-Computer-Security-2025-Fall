@@ -34,16 +34,12 @@ def recover_block(p, prev, curr, init_chk):
             intermediate[BLOCK_SIZE - 1] = guess 
             recovered[BLOCK_SIZE - 1] = intermediate[BLOCK_SIZE - 1] ^ prev[BLOCK_SIZE - 1]
             print(chr(recovered[BLOCK_SIZE - 1]))
-            #if chr(recovered[BLOCK_SIZE - 1]) != '}':
-            #    return bytes()
     while pos >= 0:
         """
             scheme
             (pad length - 1) | chk 
         """
         pad = (BLOCK_SIZE - pos - 1) << 4 | (chk & 0x0f)
-        # print(f'try pos={pos}, chk={chk:02x}')
-        # print(f'pad={pad:08b}') 
         """
         Note that by sending Ci-1 = g xor (length | 0x0)
         with padding check passed, we very likely got 0x0(chk) where chk = checksum(Ci-1Ci)
@@ -62,7 +58,6 @@ def recover_block(p, prev, curr, init_chk):
             modified_ct = bytes(modified_prev) + curr
             modified_ct_hex = binascii.hexlify(modified_ct).decode()
             if oracle(p, modified_ct_hex):
-                # print(f'guess={guess:02x}, chk={chk:02x} at pos {pos}')
                 intermediate[pos] = guess 
                 recovered[pos] = intermediate[pos] ^ prev[pos]
                 print(chr(recovered[pos]))
