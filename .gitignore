@@ -9,3 +9,4 @@ How-to-Hack-Websites/
 **/__pycache__/
 **/gdbserver
 hw2/rev
+.obsidian/**
