@@ -1,0 +1,25 @@
+services:
+  web:
+    build:
+      context: web
+    read_only: true
+    tmpfs:
+      - /tmp
+    ports:
+      - "11202:11202"
+    restart: always
+
+  bot:
+    build:
+      context: bot
+    init: true
+    ports:
+      - "11203:3000"
+    environment:
+      - WEB_URL=http://web:11202
+      - FLAG=${FLAG:-flag{test2}}
+      - TURNSTILE_SITE_KEY=${TURNSTILE_SITE_KEY:-}
+      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY:-}
+    restart: always
+    depends_on:
+      - web

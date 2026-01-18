@@ -1,0 +1,5 @@
+fastapi[all]==0.121.0
+python-multipart==0.0.20
+passlib==1.7.4
+argon2_cffi==25.1.0
+uvicorn==0.38.0

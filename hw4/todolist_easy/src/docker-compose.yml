@@ -1,0 +1,10 @@
+name: hw4-pwn-todolist-easy
+
+services:
+  chal:
+    build: ./
+    volumes:
+      - ./share:/home/chal:ro
+      - ./flag.txt:/flag.txt:ro
+    ports:
+      - "10503:1337"

@@ -1,0 +1,20 @@
+services:
+  web:
+    build: .
+    ports:
+      - "11201:80"
+    tmpfs:
+      - /var/www/html/cache/proxies:uid=33,gid=33,mode=755 # my intended solution won't use this
+      - /var/www/html/cache/hydrators:uid=33,gid=33,mode=755 # my intended solution won't use this
+      - /tmp:mode=1733
+      - /var/run/apache2
+    read_only: true
+    depends_on:
+      - mongo
+      - memcached
+
+  mongo:
+    image: mongo:8.2.1-noble
+
+  memcached:
+    image: memcached:1.6.39-alpine

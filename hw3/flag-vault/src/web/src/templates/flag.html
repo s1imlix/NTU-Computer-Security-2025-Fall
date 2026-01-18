@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Flag</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚩 My Flag</h1>
+            <nav>
+                <a href="/" class="btn btn-secondary">Home</a>
+            </nav>
+        </header>
+        
+        <main class="main-content">
+            <div class="flag-header">
+                <h2>Your Flag</h2>
+                <button id="editFlagBtn" class="btn btn-primary">Edit Flag</button>
+            </div>
+            
+            <div id="flagContent" class="flag-view">
+                {% if flag %}
+                <div class="flag-display">
+                    <pre><code>{{ flag }}</code></pre>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>No flag yet</p>
+                    <p>Click the "Edit Flag" button to create your flag!</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div id="editFlagModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Edit Flag</h2>
+                    <form id="editFlagForm">
+                        <div class="form-group">
+                            <label for="flagContent">Flag Content</label>
+                            <textarea id="flagContentInput" name="content" rows="10" required></textarea>
+                        </div>
+                        <div id="editError" class="error-message hidden"></div>
+                        <button type="submit" class="btn btn-primary btn-block">Save</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/main.js"></script>
+</body>
+</html>
+

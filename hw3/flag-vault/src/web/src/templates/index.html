@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Flag</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚩 Flag Vault</h1>
+        </header>
+        
+        <main class="main-content">
+            {{ get_flashed_message(request) | safe }}
+            {% if user %}
+            <div class="welcome-section">
+                <h2>Welcome back, {{ user.username }}!</h2>
+                <p>You are successfully logged in</p>
+                <div class="button-group">
+                    <a href="/flag" class="btn btn-primary">View My Flag</a>
+                    <form action="/logout" method="POST" class="inline-form">
+                        <button type="submit" class="btn btn-secondary">Logout</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="welcome-section">
+                <h2>Welcome to Flag Vault</h2>
+                <p>Please login or register to get started</p>
+                <div class="button-group">
+                    <a href="/login" class="btn btn-primary">Login</a>
+                    <a href="/register" class="btn btn-secondary">Register</a>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>

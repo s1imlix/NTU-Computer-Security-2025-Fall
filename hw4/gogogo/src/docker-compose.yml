@@ -1,0 +1,10 @@
+name: hw4-pwn-gogogo
+
+services:
+  chal:
+    build: ./
+    volumes:
+      - ./share:/home/chal:ro
+      - ./flag.txt:/flag.txt:ro
+    ports:
+      - "10501:1337"

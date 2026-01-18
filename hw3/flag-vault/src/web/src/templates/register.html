@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚩 Flag Vault</h1>
+        </header>
+        
+        <main class="main-content">
+            <div class="auth-card">
+                <h2>Sign Up</h2>
+                {{ get_flashed_message(request) | safe }}
+                <form action="/register" method="POST" id="registerForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div id="error-message" class="error-message hidden"></div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                </form>
+                <p class="auth-link">
+                    Already have an account? <a href="/login">Sign in</a>
+                </p>
+                <p class="auth-link">
+                    <a href="/">Back to Home</a>
+                </p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
