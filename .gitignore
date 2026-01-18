@@ -8,3 +8,4 @@ How-to-Hack-Websites/
 **/*.exe*
 **/__pycache__/
 **/gdbserver
+hw2/rev
