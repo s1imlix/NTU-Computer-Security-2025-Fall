@@ -1,0 +1,28 @@
+services:
+    web:
+        build: web
+        read_only: true
+        tmpfs:
+            - /tmp
+            - /var/run/apache2
+        deploy:
+            resources:
+                limits:
+                    memory: 64M
+        restart: always
+    waf:
+        image: owasp/modsecurity-crs:4.18.0-nginx-alpine-202509200209
+        ports:
+            - "11102:8080"
+        environment:
+            SERVERNAME: ${SERVERNAME:-localhost}
+            PARANOIA: 2
+            BLOCKING_PARANOIA: 2
+            ANOMALY_INBOUND: 5
+            ANOMALY_OUTBOUND: 4
+            REPORTING_LEVEL: 3
+            CORS_HEADER_403_CONTENT_TYPE: "text/html"
+            BACKEND: http://web
+        restart: always
+        depends_on:
+            - web

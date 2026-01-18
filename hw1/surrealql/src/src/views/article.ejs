@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= article.title %> - SecureBlog</title>
+  <link href="/style.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <a href="/" class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200">
+            SecureBlog
+          </a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="/" class="text-blue-600 font-medium px-3 py-2 text-sm">
+            Articles
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Back button -->
+    <div class="mb-8">
+      <a href="/" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200 bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to articles
+      </a>
+    </div>
+
+    <!-- Article content -->
+    <article class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+      <!-- Article header -->
+      <header class="p-8 pb-6 border-b border-gray-100">
+        <h1 class="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+          <%= article.title %>
+        </h1>
+        <div class="flex items-center text-gray-500 text-sm bg-gray-50 px-4 py-3 rounded-lg">
+          <div class="bg-blue-100 p-2 rounded-full mr-3">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="font-medium text-gray-700">Published on</p>
+            <p class="text-gray-600"><%= new Date(article.created_at).toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }) %></p>
+          </div>
+        </div>
+      </header>
+
+      <!-- Article content -->
+      <div class="p-8">
+        <div class="prose prose-lg prose-gray max-w-none">
+          <div class="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
+            <%= article.content %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article footer -->
+      <footer class="bg-gray-50 px-8 py-6 border-t border-gray-100">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center text-sm text-gray-500">
+            <div class="bg-green-100 p-2 rounded-full mr-3">
+              <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <span class="font-medium">Securely stored on SecureBlog</span>
+          </div>
+          <div class="flex items-center space-x-4">
+            <a href="/" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+              Read more articles
+            </a>
+          </div>
+        </div>
+      </footer>
+    </article>
+  </div>
+</body>
+</html>

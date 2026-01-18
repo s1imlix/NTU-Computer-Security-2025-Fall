@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureBlog - Your Personal Writing Space</title>
+  <link href="/style.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <a href="/" class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200">
+            SecureBlog
+          </a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="/" class="text-blue-600 font-medium px-3 py-2 text-sm">
+            Articles
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8 text-center">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">SecureBlog</h1>
+      <p class="text-xl text-gray-600">My personal space for secure writing and sharing</p>
+    </div>
+
+    <% if (articles && articles.length > 0) { %>
+      <!-- Articles List -->
+      <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+        <% articles.forEach((article, index) => { %>
+          <article class="<%= index < articles.length - 1 ? 'border-b border-gray-100' : '' %> hover:bg-gray-50 transition-all duration-200 hover:shadow-sm">
+            <a href="/articles/<%= article.id.id %>" class="block p-8">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200 mb-2">
+                    <%= article.title %>
+                  </h3>
+                  <% if (article.created_at) { %>
+                    <div class="flex items-center text-gray-500 text-sm">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                      Published <%= new Date(article.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) %>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="ml-4 flex-shrink-0">
+                  <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </div>
+              </div>
+            </a>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

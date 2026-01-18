@@ -4,7 +4,7 @@ import random
 rng1_out = None 
 rng2_out = None 
 flag_enc = None
-with open('./output.txt', 'r') as f:
+with open('./src/output.txt', 'r') as f:
     data = bytes.fromhex(f.read())
     rng1_out = data[:4096]
     rng2_out = data[4096:8192]

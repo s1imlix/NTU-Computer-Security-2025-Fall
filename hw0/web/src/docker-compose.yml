@@ -1,0 +1,10 @@
+services:
+  web:
+    init: true
+    privileged: true
+    build: .
+    ports:
+      - 1337:1337
+    environment:
+      - FLAG=${FLAG:-flag{test}}
+    restart: always

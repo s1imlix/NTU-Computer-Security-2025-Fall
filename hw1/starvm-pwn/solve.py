@@ -252,7 +252,7 @@ if args.run or args.delete:
                 p.sendline(file_bytes)
                 print(p.readlines(2))
             else:
-                result = subprocess.run(["./starvm", f.name], capture_output=True)
+                result = subprocess.run(["./src/share/starvm", f.name], capture_output=True)
                 print(f"output:\n{result.stdout.decode()}")
                 print(f"error (if any):\n{result.stderr.decode()}")
 

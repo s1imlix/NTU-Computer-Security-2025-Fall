@@ -1,0 +1,10 @@
+name: hw1-pwn-sc
+
+services:
+  chal:
+    build: ./
+    volumes:
+      - ./share:/home/chal:ro
+      - ./flag.txt:/flag.txt:ro
+    ports:
+      - "10301:1337"

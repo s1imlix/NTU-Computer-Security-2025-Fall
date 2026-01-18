@@ -1,0 +1,25 @@
+services:
+    app:
+        build: .
+        init: true
+        read_only: true
+        ports:
+            - "11101:3000"
+        environment:
+            - SURREAL_ROOT_USER=${SURREAL_ROOT_USER:-root}
+            - SURREAL_ROOT_PASS=${SURREAL_ROOT_PASS:-root}
+            - SURREAL_PASS=${SURREAL_PASS:-p4ssw0rd}
+            - SECRET_TABLE_NAME=${SECRET_TABLE_NAME:-secret_table}
+            - SECRET_COLUMN_NAME=${SECRET_COLUMN_NAME:-secret_column}
+            - FLAG=${FLAG:-flag{th1s_1s_4_t3st_fl4g}}
+        depends_on:
+            - surrealdb
+    surrealdb:
+        image: surrealdb/surrealdb:v3.0.0-alpha.7
+        command:
+            - start
+            - --user
+            - ${SURREAL_ROOT_USER:-root}
+            - --pass
+            - ${SURREAL_ROOT_PASS:-root}
+            - memory
