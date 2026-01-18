@@ -6,4 +6,5 @@ How-to-Hack-Websites/
 **/serial
 **/.gdb_history
 **/*.exe*
-
+**/__pycache__/
+**/gdbserver
