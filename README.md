@@ -1,7 +1,6 @@
 # NTU Computer Security 計算機安全 (交大程式安全) 2025 Fall
-
-## Info
 ---
+## Info
 This is an archive of the course Computer Security Fall 2025 by Hsu-Chun Hsiao 蕭旭君 @ CSIE NTU Taiwan, including my own solutions. **Disclaimer: I do not own the source code to the homework problems nor the labs.** 
 - [Course website (NTU VPN required)](https://edu-ctf.csie.org/)
 
