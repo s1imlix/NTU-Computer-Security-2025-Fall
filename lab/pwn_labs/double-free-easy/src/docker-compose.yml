@@ -1,0 +1,11 @@
+name: pwn-lab2-double-free-easy
+
+services:
+  chal:
+    build: ./
+    volumes:
+      - ./share:/home/chal:ro
+      - ./flag.txt:/flag.txt:ro
+    ports:
+      - "10602:1337"
+    restart: always

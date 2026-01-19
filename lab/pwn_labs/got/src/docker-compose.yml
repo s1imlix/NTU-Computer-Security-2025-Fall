@@ -1,0 +1,11 @@
+name: pwn-lab0-got
+
+services:
+  chal:
+    build: ./
+    volumes:
+      - ./share:/home/chal:ro
+      - ./flag.txt:/flag.txt:ro
+    ports:
+      - "10203:1337"
+    restart: always

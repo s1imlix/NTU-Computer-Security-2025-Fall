@@ -1,0 +1,11 @@
+name: pwn-lab1-orw
+
+services:
+  chal:
+    build: ./
+    volumes:
+      - ./share:/home/chal:ro
+      - ./flag.txt:/flag.txt:ro
+    ports:
+      - "10401:1337"
+    restart: always

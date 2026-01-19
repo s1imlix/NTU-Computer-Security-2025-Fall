@@ -1,0 +1,11 @@
+name: pwn-lab0-shellcode
+
+services:
+  chal:
+    build: ./
+    volumes:
+      - ./share:/home/chal:ro
+      - ./flag.txt:/flag.txt:ro
+    ports:
+      - "10201:1337"
+    restart: always

@@ -1,0 +1,11 @@
+name: pwn-lab2-uaf
+
+services:
+  chal:
+    build: ./
+    volumes:
+      - ./share:/home/chal:ro
+      - ./flag.txt:/flag.txt:ro
+    ports:
+      - "10603:1337"
+    restart: always
