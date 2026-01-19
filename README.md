@@ -3,14 +3,15 @@
 ## Info
 ---
 This is an archive of the course Computer Security Fall 2025 by Hsu-Chun Hsiao 蕭旭君 @ CSIE NTU Taiwan, including my own solutions. **Disclaimer: I do not own the source code to the homework problems nor the labs.** 
-[Course website (NTU VPN required)](https://edu-ctf.csie.org/) 
+- [Course website (NTU VPN required)](https://edu-ctf.csie.org/)
+
 ### Lecturer
 - Crypto: maple3142
 - Reverse: TwinkleStar03
 - Pwn: nella17
 - Web: lebronli1986
 ### Public resources
-- [How-to-Hack-Websites](https://github.com/splitline/How-to-Hack-Websites
+- [How-to-Hack-Websites](https://github.com/splitline/How-to-Hack-Websites)
 ### Environment
 Most challenge can be brought up/down with `docker-compose`.
 
