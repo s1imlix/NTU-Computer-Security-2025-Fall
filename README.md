@@ -94,6 +94,7 @@ The finals for this year's course is AIS3 EOF 2026 Qual. Our team `f4k3_b413n` e
 ## Other CTF
 For other participation, I participated in [niteCTF 2025](https://ctftime.org/event/2851/) and [V1t CTF 2025](https://ctftime.org/event/2920). The write-up can also be found at `other/other.pdf`.
 
+## Course result
+I ended up in 1st place in the NTU's class with an overall score of 104/100 (class average 80.19, median 84.55).
 
-
-
+![Overall results](images/overall-results.png)
